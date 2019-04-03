@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"azure.com/ecovo/reservation-service/cmd/middleware/auth"
+	"azure.com/ecovo/reservation-service/pkg/entity"
 	"azure.com/ecovo/reservation-service/pkg/reservation"
 )
 
@@ -28,6 +29,8 @@ func WrapError(err error) *Error {
 		return &Error{http.StatusUnauthorized, "unauthorized", err}
 	} else if _, ok := err.(reservation.NotFoundError); ok {
 		return &Error{http.StatusNotFound, "reservation does not exist", err}
+	} else if _, ok := err.(entity.ValidationError); ok {
+		return &Error{http.StatusBadRequest, err.Error(), err}
 	} else {
 		return &Error{
 			http.StatusInternalServerError,
